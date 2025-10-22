@@ -1,0 +1,43 @@
+# 範例配置 - 爬取名言網站
+# 目標網站: http://quotes.toscrape.com/
+
+name: "名言爬蟲"
+start_url: "http://quotes.toscrape.com/"
+
+# HTTP 請求設定
+headers:
+  User-Agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+
+# 請求間隔延遲（秒）
+delay: 1.0
+
+# 資料提取規則
+extract_rules:
+  # 提取單個元素
+  - field: "title"
+    type: "css"
+    selector: "h1 a"
+    multiple: false
+
+  # 提取多個名言
+  - field: "quotes"
+    type: "css"
+    selector: "span.text"
+    multiple: true
+
+  # 提取作者名稱
+  - field: "authors"
+    type: "css"
+    selector: "small.author"
+    multiple: true
+
+  # 使用 XPath 提取標籤
+  - field: "tags"
+    type: "xpath"
+    selector: "//div[@class='tags']//a[@class='tag']/text()"
+    multiple: true
+
+# 輸出設定
+output:
+  format: "json"  # json 或 csv
+  path: "output/quotes.json"

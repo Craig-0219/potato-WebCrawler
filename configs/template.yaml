@@ -1,0 +1,50 @@
+# 爬蟲配置模板
+# 複製此文件並修改以創建新的爬蟲任務
+
+# 爬蟲名稱（必填）
+name: "我的爬蟲"
+
+# 起始 URL（必填）
+start_url: "https://example.com"
+
+# HTTP 請求標頭（選填）
+headers:
+  User-Agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+  # 可添加更多標頭
+  # Accept-Language: "zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7"
+
+# 請求間隔延遲，單位：秒（選填，預設 1.0）
+delay: 1.0
+
+# 資料提取規則（必填）
+extract_rules:
+  # CSS Selector 範例
+  - field: "欄位名稱1"           # 儲存的欄位名稱
+    type: "css"                  # 提取類型: css 或 xpath
+    selector: "div.class"        # CSS 選擇器
+    attr: null                   # 要提取的屬性，null 表示提取文字內容
+    multiple: false              # 是否提取多個元素
+
+  # 提取屬性值範例
+  - field: "欄位名稱2"
+    type: "css"
+    selector: "a.link"
+    attr: "href"                 # 提取 href 屬性
+    multiple: true               # 提取所有匹配的元素
+
+  # XPath 範例
+  - field: "欄位名稱3"
+    type: "xpath"
+    selector: "//div[@class='content']//p/text()"
+    multiple: true
+
+# 分頁設定（選填）
+pagination:
+  max_pages: 5                   # 最大爬取頁數
+  type: "css"                    # css 或 xpath
+  next_page_selector: "a.next"   # 下一頁連結的選擇器
+
+# 輸出設定
+output:
+  format: "json"                 # 輸出格式: json 或 csv
+  path: "output/data.json"       # 輸出路徑

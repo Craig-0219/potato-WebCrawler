@@ -47,16 +47,23 @@ class DataExtractor:
 
         return results
 
-    def extract_by_xpath(self, xpath: str) -> List[str]:
+    def extract_by_xpath(self, xpath: str, attr: Optional[str] = None) -> List[str]:
         """
         使用 XPath 提取資料
 
         Args:
             xpath: XPath 表達式
+            attr: 要提取的屬性名稱（選填，會自動在 xpath 後加上 /@attr）
 
         Returns:
             提取結果列表
         """
+        # 如果指定了 attr 且 xpath 尚未包含該屬性
+        if attr and not xpath.endswith(f'/@{attr}'):
+            # 自動在 xpath 後加上屬性提取
+            xpath = f"{xpath}/@{attr}"
+            self.logger.debug(f"XPath 自動加入屬性提取: {xpath}")
+
         results = self.tree.xpath(xpath)
 
         # 轉換為字符串列表
@@ -92,7 +99,7 @@ class DataExtractor:
                 if rule_type == 'css':
                     results = self.extract_by_css(selector, attr)
                 elif rule_type == 'xpath':
-                    results = self.extract_by_xpath(selector)
+                    results = self.extract_by_xpath(selector, attr)
                 else:
                     raise ValueError(f"不支援的提取類型: {rule_type}")
 

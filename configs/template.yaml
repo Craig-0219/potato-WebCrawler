@@ -13,8 +13,10 @@ headers:
   # 可添加更多標頭
   # Accept-Language: "zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7"
 
-# 請求間隔延遲，單位：秒（選填，預設 1.0）
-delay: 1.0
+# HTTP 請求設定（選填）
+delay: 1.0           # 請求間隔延遲，單位：秒（預設 1.0，含 ±20% 隨機抖動）
+timeout: 30          # 請求超時時間，單位：秒（預設 30）
+max_retries: 3       # 最大重試次數（預設 3，使用指數退避策略）
 
 # 資料提取規則（必填）
 extract_rules:
@@ -32,10 +34,17 @@ extract_rules:
     attr: "href"                 # 提取 href 屬性
     multiple: true               # 提取所有匹配的元素
 
-  # XPath 範例
+  # XPath 範例（提取文字）
   - field: "欄位名稱3"
     type: "xpath"
     selector: "//div[@class='content']//p/text()"
+    multiple: true
+
+  # XPath 提取屬性範例
+  - field: "欄位名稱4"
+    type: "xpath"
+    selector: "//a[@class='link']"
+    attr: "href"                 # XPath 也支援 attr 參數
     multiple: true
 
 # 分頁設定（選填）

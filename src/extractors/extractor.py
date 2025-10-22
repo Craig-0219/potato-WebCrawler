@@ -2,6 +2,7 @@
 資料提取器 - 支援 CSS Selector 和 XPath
 """
 
+import logging
 from bs4 import BeautifulSoup
 from lxml import etree
 from typing import List, Dict, Any, Optional
@@ -17,9 +18,11 @@ class DataExtractor:
         Args:
             html: HTML 內容
         """
+        self.logger = logging.getLogger(__name__)
         self.html = html
         self.soup = BeautifulSoup(html, 'lxml')
         self.tree = etree.HTML(html)
+        self.logger.debug("資料提取器初始化完成")
 
     def extract_by_css(self, selector: str, attr: Optional[str] = None) -> List[str]:
         """
@@ -96,11 +99,14 @@ class DataExtractor:
                 # 根據 multiple 設定決定返回單個還是多個結果
                 if multiple:
                     data[field] = results
+                    self.logger.debug(f"欄位 '{field}' 提取成功: {len(results)} 個項目")
                 else:
                     data[field] = results[0] if results else None
+                    self.logger.debug(f"欄位 '{field}' 提取成功")
 
             except Exception as e:
-                print(f"提取欄位 {field} 時發生錯誤: {str(e)}")
+                self.logger.warning(f"提取欄位 '{field}' 時發生錯誤: {str(e)}")
+                self.logger.debug(f"選擇器: {selector}, 類型: {rule_type}")
                 data[field] = None if not multiple else []
 
         return data

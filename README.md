@@ -53,6 +53,46 @@ pip install -r requirements.txt
 
 ## 快速開始
 
+### 基本用法
+
+```bash
+# 基本執行
+python main.py configs/example_quotes.yaml
+
+# 顯示幫助資訊
+python main.py --help
+
+# 顯示版本
+python main.py --version
+```
+
+### 命令列參數
+
+```bash
+# 基本執行
+python main.py <配置檔案>
+python main.py -c <配置檔案>
+
+# 設定日誌層級
+python main.py configs/example.yaml --log-level DEBUG
+python main.py configs/example.yaml --log-level INFO    # 預設
+python main.py configs/example.yaml --log-level WARNING
+python main.py configs/example.yaml --log-level ERROR
+
+# 將日誌輸出到檔案
+python main.py configs/example.yaml --log-file crawler.log
+
+# 僅驗證配置檔案，不執行爬蟲
+python main.py configs/example.yaml --validate-only
+python main.py configs/example.yaml --dry-run
+
+# 安靜模式（僅顯示錯誤）
+python main.py configs/example.yaml --quiet
+
+# 組合使用
+python main.py configs/example.yaml --log-level DEBUG --log-file debug.log
+```
+
 ### 1. 使用現有配置
 
 使用預設的範例配置文件：
@@ -227,6 +267,98 @@ extract_rules:
 output:
   format: "csv"
   path: "output/products.csv"
+```
+
+## 日誌系統
+
+### 日誌層級說明
+
+- **DEBUG** - 顯示詳細的除錯資訊，包括每個步驟的細節
+- **INFO** - 顯示一般執行資訊（預設層級）
+- **WARNING** - 僅顯示警告和錯誤
+- **ERROR** - 僅顯示錯誤資訊
+- **CRITICAL** - 僅顯示嚴重錯誤
+
+### 日誌輸出範例
+
+```bash
+# INFO 層級輸出
+2025-10-22 14:30:15 - __main__ - INFO - ============================================================
+2025-10-22 14:30:15 - __main__ - INFO - Potato Web Crawler v1.0.0
+2025-10-22 14:30:15 - __main__ - INFO - ============================================================
+2025-10-22 14:30:15 - __main__ - INFO - 成功載入配置檔案: configs/example.yaml
+2025-10-22 14:30:15 - __main__ - INFO - 配置檔案驗證通過
+2025-10-22 14:30:15 - src.core.crawler - INFO - 開始爬取: 範例爬蟲
+2025-10-22 14:30:15 - src.core.crawler - INFO - 目標 URL: https://example.com
+```
+
+### 日誌檔案
+
+使用 `--log-file` 參數可將日誌儲存到檔案：
+
+```bash
+python main.py configs/example.yaml --log-file logs/crawler.log
+```
+
+日誌會同時輸出到終端和檔案，方便後續分析。
+
+## 錯誤處理
+
+程式提供詳細的錯誤訊息和結束碼：
+
+| 結束碼 | 說明 | 常見原因 |
+|--------|------|----------|
+| 0 | 成功執行 | 爬蟲順利完成 |
+| 1 | 配置錯誤 | YAML/JSON 格式錯誤 |
+| 2 | 檔案不存在 | 配置檔案路徑錯誤 |
+| 3 | 驗證錯誤 | 配置格式不符合要求 |
+| 4 | 網路錯誤 | 無法連線目標網站 |
+| 5 | 執行錯誤 | 爬取過程發生錯誤 |
+
+### 常見錯誤處理
+
+**配置格式錯誤**
+```bash
+$ python main.py configs/bad.yaml
+2025-10-22 14:30:15 - __main__ - ERROR - YAML 解析錯誤: ...
+# 解決方案: 檢查 YAML 語法，確保縮排正確
+```
+
+**網路連線錯誤**
+```bash
+$ python main.py configs/example.yaml
+2025-10-22 14:30:15 - __main__ - ERROR - 網路連線錯誤: ...
+2025-10-22 14:30:15 - __main__ - INFO - 請檢查網路連線或目標網站是否可訪問
+# 解決方案: 檢查網路連線，確認目標網站可訪問
+```
+
+**權限錯誤**
+```bash
+$ python main.py configs/example.yaml
+2025-10-22 14:30:15 - __main__ - ERROR - 權限錯誤: ...
+# 解決方案: 確認輸出目錄有寫入權限
+```
+
+## 配置檔案驗證
+
+在實際執行前，可以先驗證配置檔案：
+
+```bash
+# 方法 1: 使用 --validate-only
+python main.py configs/my_config.yaml --validate-only
+
+# 方法 2: 使用 --dry-run
+python main.py configs/my_config.yaml --dry-run
+```
+
+成功輸出：
+```
+✓ 配置檔案驗證通過
+```
+
+失敗輸出：
+```
+ERROR - 配置驗證失敗: 缺少必要欄位: start_url
 ```
 
 ## 進階使用

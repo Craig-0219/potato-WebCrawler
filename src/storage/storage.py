@@ -4,6 +4,7 @@
 
 import json
 import csv
+import logging
 from pathlib import Path
 from typing import List, Dict, Any
 from abc import ABC, abstractmethod
@@ -21,6 +22,9 @@ class BaseStorage(ABC):
 class JsonStorage(BaseStorage):
     """JSON 格式儲存"""
 
+    def __init__(self):
+        self.logger = logging.getLogger(__name__)
+
     def save(self, data: List[Dict[str, Any]], output_path: str):
         """
         儲存為 JSON 格式
@@ -29,16 +33,23 @@ class JsonStorage(BaseStorage):
             data: 資料列表
             output_path: 輸出路徑
         """
-        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        output_file = Path(output_path)
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+
+        self.logger.debug(f"正在寫入 JSON 檔案: {output_path}")
 
         with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
 
-        print(f"資料已儲存至: {output_path}")
+        file_size = output_file.stat().st_size
+        self.logger.info(f"JSON 檔案已儲存: {output_path} ({file_size} bytes)")
 
 
 class CsvStorage(BaseStorage):
     """CSV 格式儲存"""
+
+    def __init__(self):
+        self.logger = logging.getLogger(__name__)
 
     def save(self, data: List[Dict[str, Any]], output_path: str):
         """
@@ -49,20 +60,23 @@ class CsvStorage(BaseStorage):
             output_path: 輸出路徑
         """
         if not data:
-            print("沒有資料需要儲存")
+            self.logger.warning("沒有資料需要儲存")
             return
 
-        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        output_file = Path(output_path)
+        output_file.parent.mkdir(parents=True, exist_ok=True)
 
         # 取得所有欄位名稱
         fieldnames = list(data[0].keys())
+        self.logger.debug(f"CSV 欄位: {', '.join(fieldnames)}")
 
         with open(output_path, 'w', newline='', encoding='utf-8-sig') as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
             writer.writerows(data)
 
-        print(f"資料已儲存至: {output_path}")
+        file_size = output_file.stat().st_size
+        self.logger.info(f"CSV 檔案已儲存: {output_path} ({file_size} bytes, {len(data)} 筆資料)")
 
 
 class StorageFactory:
